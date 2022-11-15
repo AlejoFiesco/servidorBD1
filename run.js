@@ -1,5 +1,6 @@
 const express = require('express');
 const app  = express();
+app.use(express.static('public'))
 const port = 5000;
 const { insercion, busqueda, eliminar } = require('./connection');
 
@@ -15,6 +16,7 @@ app.get('/agregar/:nombres/:apellidos/:correo/:contrasena', (req, res) => {
         insercion(nuevoUsuario.nombres, nuevoUsuario.apellidos, nuevoUsuario.correo, nuevoUsuario.contrasena)
             .then(result => {
                 if(result){
+                    res.header("Access-Control-Allow-Origin", "*");
                     res.send('Usuario registrado correctamente');
                 }else{
                     res.status(500);
@@ -30,9 +32,19 @@ app.get('/buscar/:query', (req, res) => {
     const query = req.params.query;
     try{
         busqueda(query)
-            .then(result => result.rows)
+            .then(result => {
+                try{
+                    return(result.rows)
+                }catch(e){
+                    res.status(500);
+                    res.send(result);
+                    console.log(result);
+                    return
+                }
+            })
             .then(result => {
                 console.log(result);
+                res.header("Access-Control-Allow-Origin", "*");
                 res.send(result);
         });
     }catch(e){
@@ -46,6 +58,7 @@ app.get('/eliminar/:correo', (req, res) =>{
         eliminar(correo)
             .then(result => {
                 if(result) console.log(result);
+                res.header("Access-Control-Allow-Origin", "*");
                 res.send("Eliminado correctamente");
             })
     }catch(e){

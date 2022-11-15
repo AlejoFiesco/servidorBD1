@@ -41,8 +41,7 @@ const insercion = async (nombres, apellidos, correo, contrasena) => {
     let connection;
     try{
         connection = await oracledb.getConnection(connParams);
-        let result = await connection.execute(`SELECT * FROM empleado WHERE correo = '${correo}'`);
-        console.log("filas" + result.rows.length);
+        let result = await connection.execute(`SELECT correo FROM empleado WHERE correo = '${correo}'`);
         if(result.rows.length === 0){
             console.log("Entrando a insercion");
             connection.execute(`
